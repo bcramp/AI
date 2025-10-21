@@ -7,6 +7,8 @@
 import tkinter as tk
 # Import the math library to use sqrt
 import math
+# Import the random library to randomize the move list
+import random
 #from PIL import ImageTk, Image, ImageOps 
 from queue import PriorityQueue
 
@@ -119,9 +121,15 @@ class MazeGame:
                 continue
 
             visited.add(current_cell)
-            
-            #### Agent goes E, W, N, S, NW, NE, SW, and SE whenever possible
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (1, 1), (-1, -1), (-1, 1)]:
+
+            # Initialize the move set where the agent can go E, W, N, S, NW, NE, SW, and SE whenever possible
+            moves = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (1, 1), (-1, -1), (-1, 1)]
+
+            # Shuffle the list of moves
+            random.shuffle(moves)
+
+            #### Iterate over the randomly-sorted moves list
+            for dx, dy in moves:
                 new_pos = (current_pos[0] + dx, current_pos[1] + dy)
 
                 if 0 <= new_pos[0] < self.rows and 0 <= new_pos[1] < self.cols and not self.cells[new_pos[0]][new_pos[1]].is_wall:
@@ -200,13 +208,13 @@ maze = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
 
