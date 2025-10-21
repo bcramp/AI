@@ -36,6 +36,38 @@ class Cell:
 ######################################################
 class MazeGame:
     def __init__(self, root, maze):
+        # self.root = root
+        # self.maze = maze
+        
+        # self.rows = len(maze)
+        # self.cols = len(maze[0])
+
+        # #### Start state: (0,0) or top left        
+        # self.agent_pos = (0, 0)
+        
+        # #### Goal state:  (rows-1, cols-1) or bottom right
+        # self.goal_pos = (self.rows - 1, self.cols - 1)
+        
+        # self.cells = [[Cell(x, y, maze[x][y] == 1) for y in range(self.cols)] for x in range(self.rows)]
+        
+        # #### Start state's initial values for greedy best-first f(n) = h(n)
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].g = 0
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].h = self.heuristic(self.agent_pos)
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].f = self.heuristic(self.agent_pos)
+
+        # #### The maze cell size in pixels
+        # self.cell_size = 75
+        # self.canvas = tk.Canvas(root, width=self.cols * self.cell_size, height=self.rows * self.cell_size, bg='white')
+        # self.canvas.pack()
+
+        # self.draw_maze()
+        
+        # #### Display the optimum path in the maze using Greedy BFS
+        # self.find_path_greedy_bfs()
+
+
+        #######################################################################################
+        # After finding greedy best-first path, find the A* path
         self.root = root
         self.maze = maze
         
@@ -87,6 +119,58 @@ class MazeGame:
     ############################################################
     def heuristic(self, pos):
         return (abs(pos[0] - self.goal_pos[0]) + abs(pos[1] - self.goal_pos[1]))
+
+
+
+    ############################################################
+    #### Greedy Best-First Algorithm
+    ############################################################
+    def find_path_greedy_bfs(self):
+        open_set = PriorityQueue()
+        
+        #### Add the start state to the queue
+        open_set.put((0, self.agent_pos))
+
+        #### Continue exploring until the queue is exhausted
+        while not open_set.empty():
+            current_cost, current_pos = open_set.get()
+            current_cell = self.cells[current_pos[0]][current_pos[1]]
+
+            #### Stop if goal is reached
+            if current_pos == self.goal_pos:
+                self.reconstruct_path()
+                break
+
+            
+            #### Agent goes E, W, N, and S whenever possible
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                new_pos = (current_pos[0] + dx, current_pos[1] + dy)
+
+                if 0 <= new_pos[0] < self.rows and 0 <= new_pos[1] < self.cols and not self.cells[new_pos[0]][new_pos[1]].is_wall:
+
+                    # ### Update the heurstic h()
+                    # new_h = self.heuristic(new_pos)
+                    
+                    # ### Update the evaluation function for the cell n: f(n) = h(n)
+                    # new_f = new_h
+
+                    # if (new_f, new_pos) not in open_set:
+                    ### Update the path cost g()
+                    self.cells[new_pos[0]][new_pos[1]].g = 0
+
+                    ### Update the heurstic h()
+                    self.cells[new_pos[0]][new_pos[1]].h = self.heuristic(new_pos)
+                    
+                    ### Update the evaluation function for the cell n: f(n) = h(n)
+                    self.cells[new_pos[0]][new_pos[1]].f = self.cells[new_pos[0]][new_pos[1]].h
+                    self.cells[new_pos[0]][new_pos[1]].parent = current_cell
+
+                    #### Add the new cell to the priority queue
+                    open_set.put((self.cells[new_pos[0]][new_pos[1]].f, new_pos))
+
+                    # if (self.cells[new_pos[0]][new_pos[1]].f, new_pos) not in open_set:
+                    #     #### Add the new cell to the priority queue
+                    #     open_set.put((self.cells[new_pos[0]][new_pos[1]].f, new_pos))
 
 
 

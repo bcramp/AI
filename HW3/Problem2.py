@@ -38,6 +38,39 @@ class Cell:
 ######################################################
 class MazeGame:
     def __init__(self, root, maze):
+        # self.root = root
+        # self.maze = maze
+        
+        # self.rows = len(maze)
+        # self.cols = len(maze[0])
+
+        # #### Start state: (0,0) or top left        
+        # self.agent_pos = (0, 0)
+        
+        # #### Goal state:  (rows-1, cols-1) or bottom right
+        # self.goal_pos = (self.rows - 1, self.cols - 1)
+        
+        # self.cells = [[Cell(x, y, maze[x][y] == 1) for y in range(self.cols)] for x in range(self.rows)]
+        
+        # #### Start state's initial values for greedy best-first f(n) = h(n)
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].g = 0
+        # # Round to 3 decimal places
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].h = round(self.heuristic(self.agent_pos), 3)
+        # self.cells[self.agent_pos[0]][self.agent_pos[1]].f = round(self.heuristic(self.agent_pos), 3)
+
+        # #### The maze cell size in pixels
+        # self.cell_size = 75
+        # self.canvas = tk.Canvas(root, width=self.cols * self.cell_size, height=self.rows * self.cell_size, bg='white')
+        # self.canvas.pack()
+
+        # self.draw_maze_greedy_bfs()
+        
+        # #### Display the optimum path in the maze using Greedy BFS
+        # self.find_path_greedy_bfs()
+
+
+        #######################################################################################
+        # After finding greedy best-first path, find the A* path
         self.root = root
         self.maze = maze
         
@@ -54,32 +87,46 @@ class MazeGame:
         
         #### Start state's initial values for f(n) = g(n) + h(n) 
         self.cells[self.agent_pos[0]][self.agent_pos[1]].g = 0
-        self.cells[self.agent_pos[0]][self.agent_pos[1]].h = self.heuristic(self.agent_pos)
-        self.cells[self.agent_pos[0]][self.agent_pos[1]].f = self.heuristic(self.agent_pos)
+        # Round to 3 decimal places
+        self.cells[self.agent_pos[0]][self.agent_pos[1]].h = round(self.heuristic(self.agent_pos), 3)
+        self.cells[self.agent_pos[0]][self.agent_pos[1]].f = round(self.heuristic(self.agent_pos), 3)
 
         #### The maze cell size in pixels
         self.cell_size = 75
         self.canvas = tk.Canvas(root, width=self.cols * self.cell_size, height=self.rows * self.cell_size, bg='white')
         self.canvas.pack()
 
-        self.draw_maze()
-        
-        #### Display the optimum path in the maze
-        self.find_path()
+        self.draw_maze_a_star()
+
+        #### Display the optimum path in the maze using A*
+        self.find_path_a_star()
 
 
 
     ############################################################
-    #### This is for the GUI part. No need to modify this unless
-    #### GUI changes are needed.
+    #### This is for the GUI part for Greedy BFS
     ############################################################
-    def draw_maze(self):
+    def draw_maze_greedy_bfs(self):
         for x in range(self.rows):
             for y in range(self.cols):
                 color = 'maroon' if self.maze[x][y] == 1 else 'white'
                 self.canvas.create_rectangle(y * self.cell_size, x * self.cell_size, (y + 1) * self.cell_size, (x + 1) * self.cell_size, fill=color)
                 if not self.cells[x][y].is_wall:
                     text = f'g={self.cells[x][y].g}\nh={self.cells[x][y].h}'
+                    self.canvas.create_text((y + 0.5) * self.cell_size, (x + 0.5) * self.cell_size, font=("Purisa", 12), text=text)
+
+
+
+    ############################################################
+    #### This is for the GUI part for A*
+    ############################################################
+    def draw_maze_a_star(self):
+        for x in range(self.rows):
+            for y in range(self.cols):
+                color = 'maroon' if self.maze[x][y] == 1 else 'white'
+                self.canvas.create_rectangle(y * self.cell_size, x * self.cell_size, (y + 1) * self.cell_size, (x + 1) * self.cell_size, fill=color)
+                if not self.cells[x][y].is_wall:
+                    text = f"g={self.cells[x][y].g}\nh={self.cells[x][y].h}"
                     self.canvas.create_text((y + 0.5) * self.cell_size, (x + 0.5) * self.cell_size, font=("Purisa", 12), text=text)
 
 
@@ -93,9 +140,9 @@ class MazeGame:
 
 
     ############################################################
-    #### A* Algorithm
+    #### Greedy Best-First Algorithm
     ############################################################
-    def find_path(self):
+    def find_path_greedy_bfs(self):
         open_set = PriorityQueue()
         
         #### Add the start state to the queue
@@ -112,8 +159,46 @@ class MazeGame:
                 break
 
             
-            #### Agent goes E, W, N, and S, whenever possible
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            #### Agent goes E, W, N, S, NW, NE, SW, and SE whenever possible
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (1, 1), (-1, -1), (-1, 1)]:
+                new_pos = (current_pos[0] + dx, current_pos[1] + dy)
+
+                if 0 <= new_pos[0] < self.rows and 0 <= new_pos[1] < self.cols and not self.cells[new_pos[0]][new_pos[1]].is_wall:
+                    
+                    ### Update the heurstic h() and round to 3 decimal places
+                    self.cells[new_pos[0]][new_pos[1]].h = round(self.heuristic(new_pos), 3)
+                    
+                    ### Update the evaluation function for the cell n: f(n) = h(n)
+                    self.cells[new_pos[0]][new_pos[1]].f = self.cells[new_pos[0]][new_pos[1]].h
+                    self.cells[new_pos[0]][new_pos[1]].parent = current_cell
+                    
+                    #### Add the new cell to the priority queue
+                    open_set.put((self.cells[new_pos[0]][new_pos[1]].f, new_pos))
+
+
+
+    ############################################################
+    #### A* Algorithm
+    ############################################################
+    def find_path_a_star(self):
+        open_set = PriorityQueue()
+        
+        #### Add the start state to the queue
+        open_set.put((0, self.agent_pos))
+
+        #### Continue exploring until the queue is exhausted
+        while not open_set.empty():
+            current_cost, current_pos = open_set.get()
+            current_cell = self.cells[current_pos[0]][current_pos[1]]
+
+            #### Stop if goal is reached
+            if current_pos == self.goal_pos:
+                self.reconstruct_path()
+                break
+
+            
+            #### Agent goes E, W, N, S, NW, NE, SW, and SE whenever possible
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (1, 1), (-1, -1), (-1, 1)]:
                 new_pos = (current_pos[0] + dx, current_pos[1] + dy)
 
                 if 0 <= new_pos[0] < self.rows and 0 <= new_pos[1] < self.cols and not self.cells[new_pos[0]][new_pos[1]].is_wall:
@@ -126,8 +211,8 @@ class MazeGame:
                         ### Update the path cost g()
                         self.cells[new_pos[0]][new_pos[1]].g = new_g
                         
-                        ### Update the heurstic h()
-                        self.cells[new_pos[0]][new_pos[1]].h = self.heuristic(new_pos)
+                        ### Update the heurstic h() and round to 3 decimal places
+                        self.cells[new_pos[0]][new_pos[1]].h = round(self.heuristic(new_pos), 3)
                         
                         ### Update the evaluation function for the cell n: f(n) = g(n) + h(n)
                         self.cells[new_pos[0]][new_pos[1]].f = new_g + self.cells[new_pos[0]][new_pos[1]].h
