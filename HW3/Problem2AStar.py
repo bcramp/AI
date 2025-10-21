@@ -18,7 +18,7 @@ from queue import PriorityQueue
 ######################################################
 
 class Cell:
-    #### Initially, arre maze cells have g() = inf and h() = 0
+    #### Initially, our maze cells have g() = inf and h() = 0
     def __init__(self, x, y, is_wall=False):
         self.x = x
         self.y = y
@@ -211,7 +211,7 @@ maze = [
 #### The mainloop activates the GUI.
 ############################################################
 root = tk.Tk()
-root.title("A* Maze")
+root.title("A* Maze with Euclidean Heuristic")
 
 game = MazeGame(root, maze)
 root.bind("<KeyPress>", game.move_agent)
