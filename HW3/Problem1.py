@@ -81,30 +81,6 @@ class MazeGame:
                     self.canvas.create_text((y + 0.5) * self.cell_size, (x + 0.5) * self.cell_size, font=("Purisa", 12), text=text)
 
 
-        #### Load the animated GIF
-        #### Use this site to resize/crop/recolor gif images: https://ezgif.com/
-        gif_path = "images/ghost.gif"
-        gif = Image.open(gif_path)
-        
-        #### Maze/screen locations of the ghost
-        x, y = 1,5
-        xx, yy = x*self.cell_size, y*self.cell_size
-	
-        #### Create a function to animate the GIF
-        def animate(frame_num=0):
-            gif.seek(frame_num)
-            frame = ImageTk.PhotoImage(gif)
-            self.canvas.create_image(xx, yy, anchor=tk.NW, image=frame, tag="image")
-            frame_num = (frame_num + 1) % gif.n_frames
-            self.canvas.after(100, animate, frame_num)
-            
-            #### Keep a reference to the frame to prevent it from being garbage collected
-            animate.frame = frame
-		
-        #### Start the animation
-        animate()
-
-
 
     ############################################################
     #### Manhattan distance
@@ -201,7 +177,8 @@ class MazeGame:
 
         #### Erase agent from the previous cell at time t
         self.canvas.delete("agent")
-  
+
+        
         ### Redraw the agent in color navy in the new cell position at time t+1
         self.canvas.create_rectangle(self.agent_pos[1] * self.cell_size, self.agent_pos[0] * self.cell_size, 
                                     (self.agent_pos[1] + 1) * self.cell_size, (self.agent_pos[0] + 1) * self.cell_size, 
