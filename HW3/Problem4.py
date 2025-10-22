@@ -8,10 +8,11 @@ class Solution(object):
         :rtype: int
         """
 
-        # Grab the rows and columns lengths of the heights
-        rows, cols = len(heights), len(heights[0])
+        # Grab the rows and columns lengths of the height's dimensions
+        rows = len(heights)
+        cols = len(heights[0])
 
-        # Store the efforts to reach a cell
+        # Stores the efforts to reach a cell
         efforts = []
 
         # Pre-populate the array with infinity everywhere
@@ -48,8 +49,8 @@ class Solution(object):
                 new_row, new_col = (row + dy, col + dx)
 
                 # Check if the new cell is valid
-                if 0 <= new_row < rows and 0 <= new_col < cols:
-                    # Calculate the new effort for this step
+                if 0 <= new_row <= (rows - 1) and 0 <= new_col <= (cols - 1):
+                    # Calculate the new effort difference
                     effort_diff = abs(heights[new_row][new_col] - heights[row][col])
 
                     # Calculate the max effort to reach the new position
@@ -64,4 +65,3 @@ class Solution(object):
                         heapq.heappush(open_set, (new_row, new_col, new_effort))
 
         return 0
-        
