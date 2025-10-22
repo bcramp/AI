@@ -157,6 +157,7 @@ class MazeGame:
             self.canvas.create_text((y + 0.5) * self.cell_size, (x + 0.5) * self.cell_size, font=("Purisa", 12), text=text)
 
 
+
     ############################################################
     #### This is for the GUI part. No need to modify this unless
     #### screen changes are needed.

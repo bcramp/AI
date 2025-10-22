@@ -16,7 +16,7 @@ from queue import PriorityQueue
 ######################################################
 
 class Cell:
-    #### Initially, arre maze cells have g() = inf and h() = 0
+    #### Initially, our maze cells have g() = inf and h() = 0
     def __init__(self, x, y, is_wall=False):
         self.x = x
         self.y = y
@@ -35,39 +35,11 @@ class Cell:
 # A maze is a grid of size rows X cols
 ######################################################
 class MazeGame:
+    #### Initialize the coefficients that will be utilized
+    alpha = 1
+    beta = 1
+
     def __init__(self, root, maze):
-        # self.root = root
-        # self.maze = maze
-        
-        # self.rows = len(maze)
-        # self.cols = len(maze[0])
-
-        # #### Start state: (0,0) or top left        
-        # self.agent_pos = (0, 0)
-        
-        # #### Goal state:  (rows-1, cols-1) or bottom right
-        # self.goal_pos = (self.rows - 1, self.cols - 1)
-        
-        # self.cells = [[Cell(x, y, maze[x][y] == 1) for y in range(self.cols)] for x in range(self.rows)]
-        
-        # #### Start state's initial values for greedy best-first f(n) = h(n)
-        # self.cells[self.agent_pos[0]][self.agent_pos[1]].g = 0
-        # self.cells[self.agent_pos[0]][self.agent_pos[1]].h = self.heuristic(self.agent_pos)
-        # self.cells[self.agent_pos[0]][self.agent_pos[1]].f = self.heuristic(self.agent_pos)
-
-        # #### The maze cell size in pixels
-        # self.cell_size = 75
-        # self.canvas = tk.Canvas(root, width=self.cols * self.cell_size, height=self.rows * self.cell_size, bg='white')
-        # self.canvas.pack()
-
-        # self.draw_maze()
-        
-        # #### Display the optimum path in the maze using Greedy BFS
-        # self.find_path_greedy_bfs()
-
-
-        #######################################################################################
-        # After finding greedy best-first path, find the A* path
         self.root = root
         self.maze = maze
         
@@ -82,10 +54,10 @@ class MazeGame:
         
         self.cells = [[Cell(x, y, maze[x][y] == 1) for y in range(self.cols)] for x in range(self.rows)]
         
-        #### Start state's initial values for f(n) = g(n) + h(n) 
+        #### Start state's initial values for f(n) = alpha * g(n) + beta * h(n) 
         self.cells[self.agent_pos[0]][self.agent_pos[1]].g = 0
         self.cells[self.agent_pos[0]][self.agent_pos[1]].h = self.heuristic(self.agent_pos)
-        self.cells[self.agent_pos[0]][self.agent_pos[1]].f = self.heuristic(self.agent_pos)
+        self.cells[self.agent_pos[0]][self.agent_pos[1]].f = MazeGame.beta * self.cells[self.agent_pos[0]][self.agent_pos[1]].h
 
         #### The maze cell size in pixels
         self.cell_size = 75
@@ -119,58 +91,6 @@ class MazeGame:
     ############################################################
     def heuristic(self, pos):
         return (abs(pos[0] - self.goal_pos[0]) + abs(pos[1] - self.goal_pos[1]))
-
-
-
-    ############################################################
-    #### Greedy Best-First Algorithm
-    ############################################################
-    def find_path_greedy_bfs(self):
-        open_set = PriorityQueue()
-        
-        #### Add the start state to the queue
-        open_set.put((0, self.agent_pos))
-
-        #### Continue exploring until the queue is exhausted
-        while not open_set.empty():
-            current_cost, current_pos = open_set.get()
-            current_cell = self.cells[current_pos[0]][current_pos[1]]
-
-            #### Stop if goal is reached
-            if current_pos == self.goal_pos:
-                self.reconstruct_path()
-                break
-
-            
-            #### Agent goes E, W, N, and S whenever possible
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                new_pos = (current_pos[0] + dx, current_pos[1] + dy)
-
-                if 0 <= new_pos[0] < self.rows and 0 <= new_pos[1] < self.cols and not self.cells[new_pos[0]][new_pos[1]].is_wall:
-
-                    # ### Update the heurstic h()
-                    # new_h = self.heuristic(new_pos)
-                    
-                    # ### Update the evaluation function for the cell n: f(n) = h(n)
-                    # new_f = new_h
-
-                    # if (new_f, new_pos) not in open_set:
-                    ### Update the path cost g()
-                    self.cells[new_pos[0]][new_pos[1]].g = 0
-
-                    ### Update the heurstic h()
-                    self.cells[new_pos[0]][new_pos[1]].h = self.heuristic(new_pos)
-                    
-                    ### Update the evaluation function for the cell n: f(n) = h(n)
-                    self.cells[new_pos[0]][new_pos[1]].f = self.cells[new_pos[0]][new_pos[1]].h
-                    self.cells[new_pos[0]][new_pos[1]].parent = current_cell
-
-                    #### Add the new cell to the priority queue
-                    open_set.put((self.cells[new_pos[0]][new_pos[1]].f, new_pos))
-
-                    # if (self.cells[new_pos[0]][new_pos[1]].f, new_pos) not in open_set:
-                    #     #### Add the new cell to the priority queue
-                    #     open_set.put((self.cells[new_pos[0]][new_pos[1]].f, new_pos))
 
 
 
@@ -211,8 +131,8 @@ class MazeGame:
                         ### Update the heurstic h()
                         self.cells[new_pos[0]][new_pos[1]].h = self.heuristic(new_pos)
                         
-                        ### Update the evaluation function for the cell n: f(n) = g(n) + h(n)
-                        self.cells[new_pos[0]][new_pos[1]].f = new_g + self.cells[new_pos[0]][new_pos[1]].h
+                        ### Update the evaluation function for the cell n: f(n) = alpha * g(n) + beta * h(n)
+                        self.cells[new_pos[0]][new_pos[1]].f = MazeGame.alpha * new_g + MazeGame.beta * self.cells[new_pos[0]][new_pos[1]].h
                         self.cells[new_pos[0]][new_pos[1]].parent = current_cell
                         
                         #### Add the new cell to the priority queue
@@ -235,6 +155,7 @@ class MazeGame:
             self.canvas.create_rectangle(y * self.cell_size, x * self.cell_size, (y + 1) * self.cell_size, (x + 1) * self.cell_size, fill='skyblue')
             text = f'g={self.cells[x][y].g}\nh={self.cells[x][y].h}'
             self.canvas.create_text((y + 0.5) * self.cell_size, (x + 0.5) * self.cell_size, font=("Purisa", 12), text=text)
+
 
 
     ############################################################
@@ -278,13 +199,13 @@ maze = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
 
@@ -293,7 +214,7 @@ maze = [
 #### The mainloop activates the GUI.
 ############################################################
 root = tk.Tk()
-root.title("A* Maze")
+root.title("A* Maze using Manhattan Heuristic with alpha:{a}, beta:{b}".format(a={MazeGame.alpha}, b={MazeGame.beta}))
 
 game = MazeGame(root, maze)
 root.bind("<KeyPress>", game.move_agent)
