@@ -1,15 +1,19 @@
 #######################################################
-#### MazeGame uses a grid of rows X cols to demonstrate
-#### pathfinding using A*.
+#### Problem 2 Greedy BFS with Euclidean Distance
 ####
-#### AI, Spring 2024
+#### Title: Maze Pathfinding using Greedy BFS with Euclidean Distance
+#### Name: Brennen Cramp
+#### Date: 10/14/2025
+####
+#### MazeGame uses a grid of rows X cols to demonstrate
+#### pathfinding using Greedy BFS with Euclidean Distance
+#### as the heuristic.
 #######################################################
 import tkinter as tk
 # Import the math library to use sqrt
 import math
 # Import the random library to randomize the move list
 import random
-#from PIL import ImageTk, Image, ImageOps 
 from queue import PriorityQueue
 
 

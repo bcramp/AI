@@ -1,11 +1,16 @@
 #######################################################
-#### MazeGame uses a grid of rows X cols to demonstrate
-#### pathfinding using A*.
+#### Problem 3 A* with Manhattan Distance and Coefficients
 ####
-#### AI, Spring 2024
+#### Title: Maze Pathfinding using A* with Manhattan Distance and Coefficients
+#### Name: Brennen Cramp
+#### Date: 10/14/2025
+####
+#### MazeGame uses a grid of rows X cols to demonstrate
+#### pathfinding using A* with Manhattan Distance as the
+#### heuristic along with adding coefficients for evaluation function:
+#### f(n) = alpha * g(n) + beta * h(n)
 #######################################################
 import tkinter as tk
-#from PIL import ImageTk, Image, ImageOps 
 from queue import PriorityQueue
 
 

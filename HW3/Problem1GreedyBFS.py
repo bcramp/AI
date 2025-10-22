@@ -1,11 +1,15 @@
 #######################################################
-#### MazeGame uses a grid of rows X cols to demonstrate
-#### pathfinding using A*.
+#### Problem 1 Greedy BFS with Manhattan Distance
 ####
-#### AI, Spring 2024
+#### Title: Maze Pathfinding using Greedy BFS with Manhattan Distance
+#### Name: Brennen Cramp
+#### Date: 10/14/2025
+####
+#### MazeGame uses a grid of rows X cols to demonstrate
+#### pathfinding using Greedy BFS with Manhattan Distance
+#### as the heuristic.
 #######################################################
 import tkinter as tk
-#from PIL import ImageTk, Image, ImageOps 
 from queue import PriorityQueue
 
 
