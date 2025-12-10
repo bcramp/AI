@@ -520,9 +520,12 @@ def draw_log_panel(screen, log_lines, episode_count, total_reward, current_epsil
 # ======================================================================
 
 # Training Hyperparameters
-GAMMA = 0.99           # Discount Factor (how much future rewards matter)
+# GAMMA = 0.99           # Discount Factor (how much future rewards matter)
+GAMMA = 0.1           # Discount Factor; changed from 0.99 to 0.1 for part 2 (low)
+# GAMMA = 0.5           # Discount Factor; changed from 0.99 to 0.5 part 2 (medium)
+# GAMMA = 0.99           # Discount Factor; 0.99 part 2 (high)
 BUFFER_CAPACITY = 10000    # Maximum size of the experience replay memory
-LR = 0.0005                  # Lowered Learning Rate for stability
+LR = 0.0005                  # Lowered Learning Rate (alpha) for stability
 BATCH_SIZE = 64            # Number of samples taken from the buffer per training step
 
 # --- ADJUSTED HYPERPARAMETERS FOR FASTER REAL-TIME TRAINING ---
@@ -530,8 +533,8 @@ TARGET_UPDATE_FREQ = 100   # Update target network more frequently
 
 # Epsilon-Greedy Parameters (Controls Exploration vs. Exploitation)
 EPS_START = 1.0            # Initial chance of random exploration
-EPS_END = 0.20             # MINIMUM EPSILON to force exploration!
-EPS_DECAY = 5000           # Keeping this aggressive decay value as requested
+EPS_END = 0.20             # MINIMUM EPSILON to force exploration! Default value
+EPS_DECAY = 5000           # High decay value; default
 
 # New Automatic Stop Parameter
 SUCCESS_THRESHOLD = 10 
@@ -562,7 +565,10 @@ def run_visualizer():
     clock = pygame.time.Clock()
     
     # --- KEY CHANGE: INCREASED FPS FOR FASTER REAL-TIME TRAINING ---
-    FPS = 100
+    FPS = 1000 # Increased from 100 to 1000
+
+    # Keeps track of the amount of previous steps before the current episode
+    previous_steps = 0
 
     while running:
         for event in pygame.event.get():
@@ -610,16 +616,16 @@ def run_visualizer():
                 # 4. Perform a training optimization step (Learn)
                 if len(agent.memory) > BATCH_SIZE:
                     loss = agent.learn(BATCH_SIZE)
-                    if loss is not None:
-                             # Log loss to CONSOLE, not Pygame panel
-                             if agent.steps_done % 100 == 0:
-                                 print(f"Step {agent.steps_done}: Loss={loss:.4f}")
+                    # if loss is not None:
+                    #     # Log loss to CONSOLE, not Pygame panel
+                    #     if agent.steps_done % 100 == 0:
+                    #         print(f"Step {agent.steps_done}: Loss={loss:.4f}")
                 
                 # 5. Update target network periodically 
                 if agent.steps_done % TARGET_UPDATE_FREQ == 0:
                     agent.target_model.load_state_dict(agent.model.state_dict())
-                    # Log update to CONSOLE, not Pygame panel
-                    print(f"Target Network Updated at step {agent.steps_done}")
+                    # # Log update to CONSOLE, not Pygame panel
+                    # print(f"Target Network Updated at step {agent.steps_done}")
 
 
             # 6. Update RL metrics
@@ -645,7 +651,17 @@ def run_visualizer():
             if done:
                 # --- Auto-Stop Logic ---
                 # Only stop if in training mode (not exploiting a finished model)
-                if success_count >= SUCCESS_THRESHOLD and not is_trained: 
+                if success_count >= SUCCESS_THRESHOLD and not is_trained:
+                    # Calculate the amount of steps during the current episode
+                    current_steps = agent.steps_done - previous_steps
+                    previous_steps = agent.steps_done
+
+                    # Prints the episode count and path length during the episode
+                    print(f"{episode_count},{current_steps}")
+
+                    # Prints the total reward, episode count, and final epsilon
+                    print(f"Total reward: {total_reward} over {episode_count} episodes! Epsilon: {current_epsilon}")
+
                     print(f"Reached {SUCCESS_THRESHOLD} goals! Saving model and stopping.")
                     if agent.save_model(agent.MODEL_PATH):
                         print(f"Model saved successfully to {agent.MODEL_PATH}.")
@@ -653,6 +669,13 @@ def run_visualizer():
                     
                 # Reset environment for a new episode (if not stopping)
                 if running:
+                    # Calculate the amount of steps during the current episode
+                    current_steps = agent.steps_done - previous_steps
+                    previous_steps = agent.steps_done
+
+                    # Prints the episode count and path length during the episode
+                    print(f"{episode_count},{current_steps}")
+
                     state = env.reset()
                     done = False
                     total_reward = 0 
