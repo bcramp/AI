@@ -533,9 +533,9 @@ TARGET_UPDATE_FREQ = 100   # Update target network more frequently
 EPS_START = 1.0            # Initial chance of random exploration; set to 1 for part 1
 # EPS_END = 0.20             # MINIMUM EPSILON to force exploration! Default value
 EPS_END = 0.05             # MINIMUM EPSILON to force exploration! Changed from 0.20 to 0.05 for part 1
-EPS_DECAY = 5000           # High decay value; default
+EPS_DECAY = 5000           # Keeping this aggressive decay value as requested; High decay value; default
 # EPS_DECAY = 10000           # Medium decay value
-# EPS_DECAY = 15000           # Keeping this aggressive decay value as requested; low decay value
+# EPS_DECAY = 15000           # Low decay value
 
 # New Automatic Stop Parameter
 SUCCESS_THRESHOLD = 10 

@@ -520,10 +520,9 @@ def draw_log_panel(screen, log_lines, episode_count, total_reward, current_epsil
 # ======================================================================
 
 # Training Hyperparameters
-# GAMMA = 0.99           # Discount Factor (how much future rewards matter)
 GAMMA = 0.1           # Discount Factor; changed from 0.99 to 0.1 for part 2 (low)
-# GAMMA = 0.5           # Discount Factor; changed from 0.99 to 0.5 part 2 (medium)
-# GAMMA = 0.99           # Discount Factor; 0.99 part 2 (high)
+# GAMMA = 0.5           # Discount Factor; changed from 0.99 to 0.5 for part 2 (medium)
+# GAMMA = 0.99           # Discount Factor; 0.99 for part 2 (high)
 BUFFER_CAPACITY = 10000    # Maximum size of the experience replay memory
 LR = 0.0005                  # Lowered Learning Rate (alpha) for stability
 BATCH_SIZE = 64            # Number of samples taken from the buffer per training step
@@ -533,8 +532,8 @@ TARGET_UPDATE_FREQ = 100   # Update target network more frequently
 
 # Epsilon-Greedy Parameters (Controls Exploration vs. Exploitation)
 EPS_START = 1.0            # Initial chance of random exploration
-EPS_END = 0.20             # MINIMUM EPSILON to force exploration! Default value
-EPS_DECAY = 5000           # High decay value; default
+EPS_END = 0.05             # MINIMUM EPSILON to force exploration! Changed from 0.20 to 0.05 for part 2
+EPS_DECAY = 10000           # Most successful decay value from part 1 (medium decay)
 
 # New Automatic Stop Parameter
 SUCCESS_THRESHOLD = 10 
@@ -569,6 +568,9 @@ def run_visualizer():
 
     # Keeps track of the amount of previous steps before the current episode
     previous_steps = 0
+
+    # List to keep track of all the path steps per episode where the goal had been found
+    paths_per_episode_goal_found = []
 
     while running:
         for event in pygame.event.get():
@@ -656,8 +658,14 @@ def run_visualizer():
                     current_steps = agent.steps_done - previous_steps
                     previous_steps = agent.steps_done
 
-                    # Prints the episode count and path length during the episode
-                    print(f"{episode_count},{current_steps}")
+                    # If the current path found a goal, add to the list
+                    if reward > 10:
+                        # Adds the path length during the episode if a goal had been found
+                        paths_per_episode_goal_found.append(current_steps)
+
+                    # Prints the shortest path and the longest paths that had found the goal
+                    print(f"The longest path it took to find the goal was {max(paths_per_episode_goal_found)}!")
+                    print(f"The shortest path it took to find the goal was {min(paths_per_episode_goal_found)}!")
 
                     # Prints the total reward, episode count, and final epsilon
                     print(f"Total reward: {total_reward} over {episode_count} episodes! Epsilon: {current_epsilon}")
@@ -673,8 +681,10 @@ def run_visualizer():
                     current_steps = agent.steps_done - previous_steps
                     previous_steps = agent.steps_done
 
-                    # Prints the episode count and path length during the episode
-                    print(f"{episode_count},{current_steps}")
+                    # If the current path found a goal, add to the list
+                    if reward > 10:
+                        # Adds the path length during the episode if a goal had been found
+                        paths_per_episode_goal_found.append(current_steps)
 
                     state = env.reset()
                     done = False
